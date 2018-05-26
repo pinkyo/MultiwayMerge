@@ -27,15 +27,16 @@ public class MultiwayMergeSorter {
             return null;
         }
 
-        int keyNum = CHUNK_SIZE * Constants.MEGABYTE / BigFileGenerator.KEY_LEN / 2 + 1;
-        List<String> stringList = new ArrayList<>(keyNum);
+        int chunkSizeInByte = CHUNK_SIZE * Constants.MEGABYTE;
+        List<String> stringList = new ArrayList<>();
         String dirname = filePath.getParent().toString();
         try (BufferedReader br = new BufferedReader(
                 new FileReader(filePath.toFile()), Constants.BUFFER_SIZE * Constants.KILOBYTE)) {
             String key = null;
             List<String> middleFileNameList = new ArrayList<>();
             do {
-                for (int i = 0; i < keyNum; i++) {
+                for (int readSizeTotal = 0;readSizeTotal < chunkSizeInByte;
+                     readSizeTotal += key.getBytes().length) {
                     key = br.readLine();
                     if (Objects.isNull(key)) { // jump out of loop when reach eof
                         break;
